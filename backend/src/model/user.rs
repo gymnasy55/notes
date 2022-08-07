@@ -11,10 +11,10 @@ pub trait UserNewWithId {
         email: String,
         password: String,
         salt: Option<[u8; CREDENTIAL_SIZE]>,
-    ) -> User;
+    ) -> Self;
 }
 
-#[derive(Queryable, Insertable, PartialEq, Debug, Clone)]
+#[derive(Queryable, Insertable, PartialEq, Eq, Debug, Clone)]
 #[table_name = "users"]
 pub struct User {
     pub id: String,
@@ -29,7 +29,7 @@ impl UserNewWithId for User {
         email: String,
         password: String,
         salt: Option<[u8; CREDENTIAL_SIZE]>,
-    ) -> User {
+    ) -> Self {
         let hash_salt = match salt {
             Some(salt) => password::encrypt_with_salt(password, salt),
             None => password::encrypt(password),
@@ -45,7 +45,7 @@ impl UserNewWithId for User {
 }
 
 impl User {
-    pub fn new(email: String, password: String, salt: Option<[u8; CREDENTIAL_SIZE]>) -> User {
+    pub fn new(email: String, password: String, salt: Option<[u8; CREDENTIAL_SIZE]>) -> Self {
         let hash_salt = match salt {
             Some(salt) => password::encrypt_with_salt(password, salt),
             None => password::encrypt(password),

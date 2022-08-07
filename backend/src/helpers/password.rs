@@ -9,7 +9,7 @@ use crate::helpers::vector::vec_to_array;
 pub const CREDENTIAL_SIZE: usize = digest::SHA256_OUTPUT_LEN;
 const N_ITER: Option<NonZeroU32> = NonZeroU32::new(10_000);
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HashSalt {
     pub hash: String,
     pub salt: String,

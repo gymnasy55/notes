@@ -1,10 +1,9 @@
 #[macro_use]
 extern crate diesel;
 
-use repository::users::UsersRepository;
-
 use helpers::password;
 use model::user::*;
+use repository::users::UsersRepository;
 
 mod helpers;
 mod model;
@@ -50,16 +49,12 @@ fn main() {
 
     println!("Stored user: {:?}", stored_user);
 
-    match password::verify(
-        password.clone(),
-        stored_user.salt,
-        stored_user.encrypted_password,
-    ) {
+    match password::verify(password, stored_user.salt, stored_user.encrypted_password) {
         true => println!("Password verification: {:?}", true),
         false => panic!("Password verification: {:?}", false),
     };
 
-    match repository.delete_user(stored_user.id.clone()) {
+    match repository.delete_user(stored_user.id) {
         Ok(()) => println!("Deletion successful: {:?}", new_user),
         Err(e) => println!("Error: {:?}", e),
     };
