@@ -40,17 +40,19 @@ impl UsersRepository {
         }
     }
 
-    pub fn insert_user(&self, user: User) -> Result<(), UsersError> {
+    #[allow(dead_code)]
+    pub fn insert_user(&self, user: User) -> Result<(), diesel::result::Error> {
         let req = diesel::insert_into(users)
             .values(user)
             .get_result::<User>(&self.connection);
 
         match req {
             Ok(_) => Ok(()),
-            Err(_) => Err(UsersError),
+            Err(e) => Err(e),
         }
     }
 
+    #[allow(dead_code)]
     pub fn delete_user(&self, user_id: String) -> Result<(), UsersError> {
         let req = diesel::delete(users.filter(id.eq(&user_id))).execute(&self.connection);
 

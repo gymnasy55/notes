@@ -1,68 +1,40 @@
 #[macro_use]
 extern crate diesel;
+extern crate dotenv;
 
-use helpers::password;
-use model::user::*;
-use repository::users::UsersRepository;
-
+mod api;
 mod helpers;
 mod model;
 mod repository;
 mod schema;
 
-fn main() {
-    let repository = UsersRepository::init();
+use crate::{
+    api::users::{get_user, get_users},
+    repository::users::UsersRepository,
+};
+use actix_web::{
+    middleware::Logger,
+    web::{scope, Data},
+    App, HttpServer,
+};
+use dotenv::dotenv;
 
-    let users = match repository.get_users() {
-        Ok(users) => users,
-        Err(e) => panic!("Error: {:?}", e),
-    };
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    dotenv().ok();
+    env_logger::init();
 
-    println!("Users: {:?}", users);
+    HttpServer::new(move || {
+        let logger = Logger::default();
+        let users_repo = UsersRepository::init();
+        let users_repo_data = Data::new(users_repo);
 
-    let password = String::from("trashbox123");
-    let new_user = User::new(
-        String::from("polcrazpolcraz@gmail.com"),
-        password.clone(),
-        None,
-    );
-
-    match repository.insert_user(new_user.clone()) {
-        Ok(()) => println!("Insertion successful: {:?}", new_user),
-        Err(e) => println!("Error: {:?}", e),
-    };
-
-    let users2 = match repository.get_users() {
-        Ok(users) => users,
-        Err(e) => panic!("Error: {:?}", e),
-    };
-
-    println!("Users: {:?}", users2);
-
-    let stored_user = match repository.get_user_by_id(new_user.id.clone()) {
-        Ok(res) => match res {
-            Some(user) => user,
-            None => panic!("Error: user not found"),
-        },
-        Err(e) => panic!("Error: {:?}", e),
-    };
-
-    println!("Stored user: {:?}", stored_user);
-
-    match password::verify(password, stored_user.salt, stored_user.encrypted_password) {
-        true => println!("Password verification: {:?}", true),
-        false => panic!("Password verification: {:?}", false),
-    };
-
-    match repository.delete_user(stored_user.id) {
-        Ok(()) => println!("Deletion successful: {:?}", new_user),
-        Err(e) => println!("Error: {:?}", e),
-    };
-
-    let users3 = match repository.get_users() {
-        Ok(users) => users,
-        Err(e) => panic!("Error: {:?}", e),
-    };
-
-    println!("Users: {:?}", users3);
+        App::new()
+            .wrap(logger)
+            .app_data(users_repo_data)
+            .service(scope("/users").service(get_user).service(get_users))
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }

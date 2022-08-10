@@ -1,8 +1,8 @@
 use diesel::Insertable;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::helpers::password;
-use crate::password::CREDENTIAL_SIZE;
 use crate::schema::users;
 
 pub trait UserNewWithId {
@@ -10,11 +10,11 @@ pub trait UserNewWithId {
         id: String,
         email: String,
         password: String,
-        salt: Option<[u8; CREDENTIAL_SIZE]>,
+        salt: Option<[u8; password::CREDENTIAL_SIZE]>,
     ) -> Self;
 }
 
-#[derive(Queryable, Insertable, PartialEq, Eq, Debug, Clone)]
+#[derive(Queryable, Insertable, PartialEq, Eq, Debug, Clone, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct User {
     pub id: String,
@@ -28,7 +28,7 @@ impl UserNewWithId for User {
         id: String,
         email: String,
         password: String,
-        salt: Option<[u8; CREDENTIAL_SIZE]>,
+        salt: Option<[u8; password::CREDENTIAL_SIZE]>,
     ) -> Self {
         let hash_salt = match salt {
             Some(salt) => password::encrypt_with_salt(password, salt),
@@ -45,7 +45,11 @@ impl UserNewWithId for User {
 }
 
 impl User {
-    pub fn new(email: String, password: String, salt: Option<[u8; CREDENTIAL_SIZE]>) -> Self {
+    pub fn new(
+        email: String,
+        password: String,
+        salt: Option<[u8; password::CREDENTIAL_SIZE]>,
+    ) -> Self {
         let hash_salt = match salt {
             Some(salt) => password::encrypt_with_salt(password, salt),
             None => password::encrypt(password),
@@ -64,8 +68,8 @@ impl User {
 mod tests {
     use uuid::Uuid;
 
-    use crate::password::CREDENTIAL_SIZE;
-    use crate::{User, UserNewWithId};
+    use crate::helpers::password::CREDENTIAL_SIZE;
+    use crate::model::user::{User, UserNewWithId};
 
     const EMAIL: &str = "test@test.com";
     const PASSWORD: &str = "test";

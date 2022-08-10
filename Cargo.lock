@@ -249,6 +249,10 @@ dependencies = [
  "dotenv",
  "env_logger",
  "log",
+ "rand",
+ "rand_regex",
+ "rand_xorshift",
+ "regex-syntax",
  "ring",
  "serde",
  "strum",
@@ -877,6 +881,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
  "getrandom",
+]
+
+[[package]]
+name = "rand_regex"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b2a9fe2d7d9eeaf3279d1780452a5bbd26b31b27938787ef1c3e930d1e9cfbd"
+dependencies = [
+ "rand",
+ "regex-syntax",
+]
+
+[[package]]
+name = "rand_xorshift"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
+dependencies = [
+ "rand_core",
 ]
 
 [[package]]

@@ -36,6 +36,7 @@ pub fn encrypt_with_salt(password: String, salt: [u8; CREDENTIAL_SIZE]) -> HashS
     }
 }
 
+#[allow(dead_code)]
 pub fn verify(password: String, base64_salt: String, base64_hash: String) -> bool {
     pbkdf2::verify(
         pbkdf2::PBKDF2_HMAC_SHA256,
@@ -47,6 +48,7 @@ pub fn verify(password: String, base64_salt: String, base64_hash: String) -> boo
     .is_ok()
 }
 
+#[allow(dead_code)]
 fn base64_to_sha256_array(base64: String) -> [u8; CREDENTIAL_SIZE] {
     match base64::decode(base64) {
         Ok(v) => vec_to_array::<_, CREDENTIAL_SIZE>(v),
@@ -68,7 +70,7 @@ fn generate_salt() -> Result<[u8; CREDENTIAL_SIZE], error::Unspecified> {
 
 #[cfg(test)]
 mod tests {
-    use crate::password::{encrypt_with_salt, verify, HashSalt, CREDENTIAL_SIZE};
+    use crate::helpers::password::{encrypt_with_salt, verify, HashSalt, CREDENTIAL_SIZE};
 
     const SALT: [u8; CREDENTIAL_SIZE] = [
         249, 186, 110, 86, 188, 130, 204, 148, 153, 54, 33, 213, 158, 143, 216, 89, 22, 38, 101,
